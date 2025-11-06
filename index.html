@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iX Coin Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #f5f5f5;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --button-shadow: 0 4px 0 #4a4a4a;
+            --button-active: translateY(4px);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #8b5cf6;
+            --secondary-color: #3b82f6;
+            --background-color: #1a1a1a;
+            --card-color: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: #444444;
+            --button-shadow: 0 4px 0 #1a1a1a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        /* Адаптация для компьютера */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 400px;
+                margin: 0 auto;
+                padding-bottom: 20px;
+            }
+            
+            .navigation {
+                max-width: 400px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Регистрация */
+        .registration {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .registration h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--card-color);
+            color: var(--text-color);
+        }
+
+        /* Стили кнопок как клавиши клавиатуры */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            box-shadow: var(--button-shadow);
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .btn:active {
+            transform: var(--button-active);
+            box-shadow: 0 0px 0 #4a4a4a;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            box-shadow: var(--button-shadow);
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b09b, #96c93d);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+        }
+
+        .btn-collection {
+            background: linear-gradient(135deg, #8e2de2, #4a00e0);
+            margin: 10px 0;
+        }
+
+        /* Навигация */
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-color);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 2px solid var(--border-color);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+
+        .nav-btn.active {
+            color: var(--primary-color);
+            font-weight: 600;
+            background: var(--background-color);
+        }
+
+        /* Страницы */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Профиль */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+
+        .balance {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Заработок */
+        .earn-section {
+            background: var(--card-color);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .timer {
+            font-size: 18px;
+            margin: 15px 0;
+            padding: 10px;
+            background: var(--background-color);
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Магазин */
+        .cases-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .case-item {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .case-bronze { border: 3px solid #cd7f32; }
+        .case-silver { border: 3px solid #c0c0c0; }
+        .case-gold { border: 3px solid #ffd700; }
+
+        .case-price {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        /* Инвентарь */
+        .inventory-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .emoji-item {
+            background: var(--background-color);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .emoji-item:active {
+            transform: scale(0.95);
+        }
+
+        /* Настройки */
+        .settings-section {
+            background: var(--card-color);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-color);
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 90%;
+            width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons .btn {
+            flex: 1;
+        }
+
+        /* Коллекция в модалке */
+        .collection-section {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .rarity-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: var(--background-color);
+        }
+
+        .rarity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .rarity-progress {
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            margin: 5px 0;
+            overflow: hidden;
+        }
+
+        .rarity-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .collection-emojis {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .collection-emoji {
+            font-size: 20px;
+            padding: 8px;
+            background: var(--card-color);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .collection-emoji.owned {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .collection-emoji.missing {
+            opacity: 0.3;
+            filter: grayscale(1);
+        }
+
+        /* Цвета редкостей */
+        .rarity-common { color: #969696; }
+        .rarity-uncommon { color: #2ecc71; }
+        .rarity-rare { color: #3498db; }
+        .rarity-epic { color: #9b59b6; }
+        .rarity-mythic { color: #e74c3c; }
+        .rarity-legendary { color: #f1c40f; }
+        .rarity-dark { color: #2c3e50; }
+
+        .progress-common { background: #969696; }
+        .progress-uncommon { background: #2ecc71; }
+        .progress-rare { background: #3498db; }
+        .progress-epic { background: #9b59b6; }
+        .progress-mythic { background: #e74c3c; }
+        .progress-legendary { background: #f1c40f; }
+        .progress-dark { background: #2c3e50; }
+
+        /* Анимация открытия кейса */
+        .case-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .case-reel {
+            display: flex;
+            overflow: hidden;
+            width: 300px;
+            height: 100px;
+            background: var(--card-color);
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .reel-item {
+            min-width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            border-right: 2px solid var(--border-color);
+        }
+
+        /* Уведомления */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--card-color);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Регистрация -->
+        <div id="registrationPage" class="page active">
+            <div class="registration">
+                <h2 data-lang="registration_title">Регистрация в iX Coin Game</h2>
+                <div class="form-group">
+                    <label data-lang="registration_name">Имя:</label>
+                    <input type="text" id="userName" placeholder="Введите ваше имя">
+                </div>
+                <div class="form-group">
+                    <label data-lang="registration_username">Юзернейм:</label>
+                    <input type="text" id="userUsername" placeholder="Уникальный юзернейм">
+                </div>
+                <div class="form-group">
+                    <label data-lang="registration_birthdate">Дата рождения:</label>
+                    <input type="date" id="userBirthdate">
+                </div>
+                <button class="btn btn-success" onclick="showModal('confirmRegistration')" data-lang="registration_start">Начать игру</button>
+            </div>
+        </div>
+
+        <!-- Основной интерфейс -->
+        <div id="mainPage" class="page">
+            <!-- Профиль -->
+            <div id="profilePage" class="page active">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="userAvatar">👤</div>
+                    <h2 id="displayName">Пользователь</h2>
+                    <p id="displayUsername">@username</p>
+                </div>
+                
+                <div class="balance">
+                    <p data-lang="balance_title">Ваш баланс</p>
+                    <div class="balance-amount" id="balanceAmount">0 iXC</div>
+                </div>
+
+                <!-- Кнопка Моя Коллекция -->
+                <button class="btn btn-collection" onclick="showModal('collectionModal')" data-lang="collection_button">🎨 Моя Коллекция</button>
+
+                <div class="settings-section">
+                    <h3 data-lang="stats_title">Статистика</h3>
+                    <div class="setting-item">
+                        <span data-lang="stats_cases">Открыто кейсов:</span>
+                        <span id="casesOpened">0</span>
+                    </div>
+                    <div class="setting-item">
+                        <span data-lang="stats_emojis">Эмодзи в коллекции:</span>
+                        <span id="emojisCollected">0</span>
+                    </div>
+                    <div class="setting-item">
+                        <span data-lang="stats_completion">Завершённость коллекции:</span>
+                        <span id="collectionCompletion">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Заработок -->
+            <div id="earnPage" class="page">
+                <div class="earn-section">
+                    <h2 data-lang="earn_title">Заработать iXC</h2>
+                    <p data-lang="earn_description">Нажмите кнопку чтобы получать 20 iXC каждый час</p>
+                    <button class="btn btn-success" id="earnButton" onclick="showModal('confirmEarn')" data-lang="earn_claim">Забрать 20 iXC</button>
+                    <div class="timer" id="timer">00:00:00</div>
+                </div>
+            </div>
+
+            <!-- Магазин -->
+            <div id="shopPage" class="page">
+                <h2 data-lang="shop_title">Магазин кейсов</h2>
+                <div class="cases-grid">
+                    <div class="case-item case-bronze">
+                        <h3 data-lang="case_bronze">Бронзовый кейс</h3>
+                        <div class="case-price">20 iXC</div>
+                        <button class="btn btn-warning" onclick="showModal('confirmBuyBronze')" data-lang="shop_buy">Купить</button>
+                    </div>
+                    <div class="case-item case-silver">
+                        <h3 data-lang="case_silver">Серебряный кейс</h3>
+                        <div class="case-price">60 iXC</div>
+                        <button class="btn btn-secondary" onclick="showModal('confirmBuySilver')" data-lang="shop_buy">Купить</button>
+                    </div>
+                    <div class="case-item case-gold">
+                        <h3 data-lang="case_gold">Золотой кейс</h3>
+                        <div class="case-price">120 iXC</div>
+                        <button class="btn btn-warning" onclick="showModal('confirmBuyGold')" data-lang="shop_buy">Купить</button>
+                    </div>
+                </div>
+
+                <!-- Инвентарь -->
+                <div class="inventory-section" id="inventorySection" style="display: none;">
+                    <h3 data-lang="inventory_cases">Ваши кейсы</h3>
+                    <div class="emoji-grid" id="casesInventory"></div>
+                    
+                    <h3 style="margin-top: 20px;" data-lang="inventory_emojis">Коллекция эмодзи</h3>
+                    <div class="emoji-grid" id="emojisInventory"></div>
+                </div>
+            </div>
+
+            <!-- Настройки -->
+            <div id="settingsPage" class="page">
+                <div class="settings-section">
+                    <h3 data-lang="settings_profile">Профиль</h3>
+                    <div class="setting-item">
+                        <span data-lang="settings_name">Имя:</span>
+                        <span id="settingsName">-</span>
+                    </div>
+                    <div class="setting-item">
+                        <span data-lang="settings_username">Юзернейм:</span>
+                        <span id="settingsUsername">-</span>
+                    </div>
+                    <div class="setting-item">
+                        <span data-lang="settings_id">ID:</span>
+                        <span id="userId">-</span>
+                        <button class="btn" onclick="showModal('confirmCopyId')" data-lang="settings_copy">Копировать</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 data-lang="settings_settings">Настройки</h3>
+                    <div class="setting-item">
+                        <span data-lang="settings_language">Язык:</span>
+                        <select id="languageSelect" onchange="showModal('confirmLanguage')">
+                            <option value="ru">Русский</option>
+                            <option value="en">English</option>
+                            <option value="uk">Українська</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <span data-lang="settings_theme">Тема:</span>
+                        <select id="themeSelect" onchange="showModal('confirmTheme')">
+                            <option value="light">Светлая</option>
+                            <option value="dark">Тёмная</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3 data-lang="settings_danger">Опасная зона</h3>
+                    <button class="btn btn-danger" onclick="showModal('confirmReset')" data-lang="settings_reset">Сбросить аккаунт</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="navigation" id="navigation" style="display: none;">
+            <button class="nav-btn active" onclick="showPage('profilePage')" data-lang="nav_profile">Профиль</button>
+            <button class="nav-btn" onclick="showPage('earnPage')" data-lang="nav_earn">Заработать</button>
+            <button class="nav-btn" onclick="showPage('shopPage')" data-lang="nav_shop">Магазин</button>
+            <button class="nav-btn" onclick="showPage('settingsPage')" data-lang="nav_settings">Настройки</button>
+        </div>
+
+        <!-- Модальные окна -->
+        <div id="confirmRegistration" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_confirm_registration">Подтверждение регистрации</h3>
+                <p data-lang="modal_confirm_registration_text">Вы уверены, что хотите создать аккаунт с этими данными?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmRegistration')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="registerUser()" data-lang="modal_confirm">Подтвердить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmEarn" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_confirm_earn">Получить награду</h3>
+                <p data-lang="modal_confirm_earn_text">Забрать 20 iXC?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmEarn')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="claimEarnings()" data-lang="modal_claim">Забрать</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmBuyBronze" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_confirm_buy">Покупка кейса</h3>
+                <p data-lang="modal_confirm_buy_bronze">Купить Бронзовый кейс за 20 iXC?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmBuyBronze')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="buyCase('bronze')" data-lang="modal_buy">Купить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmBuySilver" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_confirm_buy">Покупка кейса</h3>
+                <p data-lang="modal_confirm_buy_silver">Купить Серебряный кейс за 60 iXC?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmBuySilver')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="buyCase('silver')" data-lang="modal_buy">Купить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmBuyGold" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_confirm_buy">Покупка кейса</h3>
+                <p data-lang="modal_confirm_buy_gold">Купить Золотой кейс за 120 iXC?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmBuyGold')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="buyCase('gold')" data-lang="modal_buy">Купить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmCopyId" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_copy_id">Копирование ID</h3>
+                <p data-lang="modal_copy_id_text">Скопировать ID в буфер обмена?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmCopyId')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="copyUserId()" data-lang="modal_copy">Копировать</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmLanguage" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_change_language">Смена языка</h3>
+                <p data-lang="modal_change_language_text">Изменить язык? Это перезагрузит интерфейс.</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmLanguage')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="changeLanguage()" data-lang="modal_change">Изменить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmTheme" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_change_theme">Смена темы</h3>
+                <p data-lang="modal_change_theme_text">Изменить тему интерфейса?</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmTheme')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="changeTheme()" data-lang="modal_change">Изменить</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="confirmReset" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="modal_reset">Сброс аккаунта</h3>
+                <p data-lang="modal_reset_text">ВЫ УВЕРЕНЫ? Это действие нельзя отменить! Все данные будут удалены.</p>
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('confirmReset')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-danger" onclick="resetAccount()" data-lang="modal_reset_confirm">Сбросить</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно коллекции -->
+        <div id="collectionModal" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="collection_title">🎨 Моя Коллекция</h3>
+                <p data-lang="collection_subtitle">Соберите все эмодзи каждой редкости!</p>
+                
+                <div id="collectionContent">
+                    <!-- Коллекция будет генерироваться через JavaScript -->
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('collectionModal')" data-lang="modal_close">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Анимация открытия кейса -->
+        <div class="case-animation" id="caseAnimation">
+            <div class="case-reel" id="caseReel"></div>
+        </div>
+
+        <!-- Уведомление -->
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script>
+        // Система перевода
+        const translations = {
+            ru: {
+                registration_title: "Регистрация в iX Coin Game",
+                registration_name: "Имя:",
+                registration_username: "Юзернейм:",
+                registration_birthdate: "Дата рождения:",
+                registration_start: "Начать игру",
+                
+                balance_title: "Ваш баланс",
+                stats_title: "Статистика",
+                stats_cases: "Открыто кейсов:",
+                stats_emojis: "Эмодзи в коллекции:",
+                stats_completion: "Завершённость коллекции:",
+                
+                earn_title: "Заработать iXC",
+                earn_description: "Нажмите кнопку чтобы получать 20 iXC каждый час",
+                earn_claim: "Забрать 20 iXC",
+                
+                shop_title: "Магазин кейсов",
+                case_bronze: "Бронзовый кейс",
+                case_silver: "Серебряный кейс",
+                case_gold: "Золотой кейс",
+                shop_buy: "Купить",
+                
+                inventory_cases: "Ваши кейсы",
+                inventory_emojis: "Коллекция эмодзи",
+                
+                settings_profile: "Профиль",
+                settings_name: "Имя:",
+                settings_username: "Юзернейм:",
+                settings_id: "ID:",
+                settings_copy: "Копировать",
+                settings_settings: "Настройки",
+                settings_language: "Язык:",
+                settings_theme: "Тема:",
+                settings_danger: "Опасная зона",
+                settings_reset: "Сбросить аккаунт",
+                
+                nav_profile: "Профиль",
+                nav_earn: "Заработать",
+                nav_shop: "Магазин",
+                nav_settings: "Настройки",
+                
+                collection_button: "🎨 Моя Коллекция",
+                collection_title: "🎨 Моя Коллекция",
+                collection_subtitle: "Соберите все эмодзи каждой редкости!",
+                collection_common: "Обычные",
+                collection_uncommon: "Необычные",
+                collection_rare: "Редкие",
+                collection_epic: "Эпические",
+                collection_mythic: "Мифические",
+                collection_legendary: "Легендарные",
+                collection_dark: "Тёмные",
+                collection_progress: "Прогресс:",
+                
+                modal_confirm_registration: "Подтверждение регистрации",
+                modal_confirm_registration_text: "Вы уверены, что хотите создать аккаунт с этими данными?",
+                modal_confirm_earn: "Получить награду",
+                modal_confirm_earn_text: "Забрать 20 iXC?",
+                modal_confirm_buy: "Покупка кейса",
+                modal_confirm_buy_bronze: "Купить Бронзовый кейс за 20 iXC?",
+                modal_confirm_buy_silver: "Купить Серебряный кейс за 60 iXC?",
+                modal_confirm_buy_gold: "Купить Золотой кейс за 120 iXC?",
+                modal_copy_id: "Копирование ID",
+                modal_copy_id_text: "Скопировать ID в буфер обмена?",
+                modal_change_language: "Смена языка",
+                modal_change_language_text: "Изменить язык? Это перезагрузит интерфейс.",
+                modal_change_theme: "Смена темы",
+                modal_change_theme_text: "Изменить тему интерфейса?",
+                modal_reset: "Сброс аккаунта",
+                modal_reset_text: "ВЫ УВЕРЕНЫ? Это действие нельзя отменить! Все данные будут удалены.",
+                modal_close: "Закрыть",
+                
+                modal_cancel: "Отмена",
+                modal_confirm: "Подтвердить",
+                modal_claim: "Забрать",
+                modal_buy: "Купить",
+                modal_copy: "Копировать",
+                modal_change: "Изменить",
+                modal_reset_confirm: "Сбросить"
+            },
+            en: {
+                // ... английские переводы (аналогично русским)
+                collection_button: "🎨 My Collection",
+                collection_title: "🎨 My Collection",
+                collection_subtitle: "Collect all emojis of each rarity!",
+                collection_common: "Common",
+                collection_uncommon: "Uncommon",
+                collection_rare: "Rare",
+                collection_epic: "Epic",
+                collection_mythic: "Mythic",
+                collection_legendary: "Legendary",
+                collection_dark: "Dark",
+                collection_progress: "Progress:",
+                modal_close: "Close"
+            },
+            uk: {
+                // ... украинские переводы (аналогично русским)
+                collection_button: "🎨 Моя Колекція",
+                collection_title: "🎨 Моя Колекція",
+                collection_subtitle: "Зберіть всі емодзі кожної рідкості!",
+                collection_common: "Звичайні",
+                collection_uncommon: "Незвичайні",
+                collection_rare: "Рідкісні",
+                collection_epic: "Епічні",
+                collection_mythic: "Міфічні",
+                collection_legendary: "Легендарні",
+                collection_dark: "Темні",
+                collection_progress: "Прогрес:",
+                modal_close: "Закрити"
+            }
+        };
+
+        // База данных игры
+        const gameData = {
+            emojis: {
+                common: ['😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇'],
+                uncommon: ['🥰', '😍', '🤩', '😘', '😗', '😚', '😙', '🥲', '😋', '😛'],
+                rare: ['😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲'],
+                epic: ['🥳', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤'],
+                mythic: ['😈', '👿', '💀', '☠️', '🤡', '👹', '👺', '👻', '👽', '👾'],
+                legendary: ['🤴', '👸', '🦸', '🦹', '🧙', '🧚', '🧛', '🧜', '🧝', '🧞'],
+                dark: ['🔮', '💎', '🎭', '⚰️', '🕶️', '🎪', '♠️', '♥️', '♦️', '♣️']
+            },
+            caseRates: {
+                bronze: {
+                    common: 50, uncommon: 25, rare: 15, epic: 7, mythic: 2, legendary: 0.9, dark: 0.1
+                },
+                silver: {
+                    common: 30, uncommon: 25, rare: 20, epic: 15, mythic: 5, legendary: 4, dark: 1
+                },
+                gold: {
+                    common: 10, uncommon: 15, rare: 20, epic: 25, mythic: 15, legendary: 10, dark: 5
+                }
+            },
+            casePrices: {
+                bronze: 20,
+                silver: 60,
+                gold: 120
+            }
+        };
+
+        let timerInterval;
+
+        // Показать модальное окно
+        function showModal(modalId) {
+            if (modalId === 'collectionModal') {
+                updateCollectionModal();
+            }
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        // Скрыть модальное окно
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Обновить модальное окно коллекции
+        function updateCollectionModal() {
+            const user = initUser();
+            const collectionContent = document.getElementById('collectionContent');
+            
+            if (!user) return;
+            
+            let html = '';
+            const totalEmojis = Object.values(gameData.emojis).flat().length;
+            const ownedEmojis = user.inventory.emojis.length;
+            const completionPercentage = ((ownedEmojis / totalEmojis) * 100).toFixed(1);
+            
+            // Общий прогресс
+            html += `<div style="text-align: center; margin-bottom: 20px; padding: 15px; background: var(--background-color); border-radius: 10px;">
+                        <h4 data-lang="collection_progress">Общий прогресс</h4>
+                        <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${completionPercentage}%</div>
+                        <div>${ownedEmojis} / ${totalEmojis} эмодзи</div>
+                    </div>`;
+            
+            // Коллекция по редкостям
+            const rarities = [
+                { key: 'common', name: 'collection_common' },
+                { key: 'uncommon', name: 'collection_uncommon' },
+                { key: 'rare', name: 'collection_rare' },
+                { key: 'epic', name: 'collection_epic' },
+                { key: 'mythic', name: 'collection_mythic' },
+                { key: 'legendary', name: 'collection_legendary' },
+                { key: 'dark', name: 'collection_dark' }
+            ];
+            
+            rarities.forEach(rarity => {
+                const emojis = gameData.emojis[rarity.key];
+                const ownedRarityEmojis = user.inventory.emojis.filter(e => e.rarity === rarity.key);
+                const progress = (ownedRarityEmojis.length / emojis.length) * 100;
+                
+                html += `
+                    <div class="rarity-section ${rarity.key}">
+                        <div class="rarity-header">
+                            <span class="rarity-${rarity.key}" data-lang="${rarity.name}">${getTranslation(rarity.name)}</span>
+                            <span>${ownedRarityEmojis.length}/${emojis.length}</span>
+                        </div>
+                        <div class="rarity-progress">
+                            <div class="rarity-progress-bar progress-${rarity.key}" style="width: ${progress}%"></div>
+                        </div>
+                        <div class="collection-emojis">
+                `;
+                
+                emojis.forEach(emoji => {
+                    const isOwned = user.inventory.emojis.some(e => e.emoji === emoji && e.rarity === rarity.key);
+                    html += `<div class="collection-emoji ${isOwned ? 'owned' : 'missing'} rarity-${rarity.key}">${emoji}</div>`;
+                });
+                
+                html += `</div></div>`;
+            });
+            
+            collectionContent.innerHTML = html;
+            updateLanguage(); // Обновляем переводы внутри модалки
+        }
+
+        // Получить перевод
+        function getTranslation(key) {
+            const language = localStorage.getItem('ixLanguage') || 'ru';
+            return translations[language][key] || key;
+        }
+
+        // Показать уведомление
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Инициализация пользователя
+        function initUser() {
+            if (!localStorage.getItem('ixUser')) {
+                return null;
+            }
+            
+            const user = JSON.parse(localStorage.getItem('ixUser'));
+            updateTimer(user);
+            updateCollectionStats(user);
+            return user;
+        }
+
+        // Обновление статистики коллекции
+        function updateCollectionStats(user) {
+            if (!user) return;
+            
+            const totalEmojis = Object.values(gameData.emojis).flat().length;
+            const ownedEmojis = user.inventory.emojis.length;
+            const completionPercentage = ((ownedEmojis / totalEmojis) * 100).toFixed(1);
+            
+            document.getElementById('emojisCollected').textContent = ownedEmojis;
+            document.getElementById('collectionCompletion').textContent = completionPercentage + '%';
+        }
+
+        // Обновление таймера
+        function updateTimer(user) {
+            clearInterval(timerInterval);
+            
+            if (!user || !user.lastClaim) {
+                document.getElementById('timer').textContent = '00:00:00';
+                document.getElementById('earnButton').disabled = false;
+                return;
+            }
+            
+            const lastClaim = new Date(user.lastClaim);
+            const nextClaim = new Date(lastClaim.getTime() + 60 * 60 * 1000);
+            const now = new Date();
+            
+            if (now >= nextClaim) {
+                document.getElementById('timer').textContent = '00:00:00';
+                document.getElementById('earnButton').disabled = false;
+                return;
+            }
+            
+            document.getElementById('earnButton').disabled = true;
+            
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const diff = nextClaim - now;
+                
+                if (diff <= 0) {
+                    document.getElementById('timer').textContent = '00:00:00';
+                    document.getElementById('earnButton').disabled = false;
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                document.getElementById('timer').textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Регистрация пользователя
+        function registerUser() {
+            const name = document.getElementById('userName').value;
+            const username = document.getElementById('userUsername').value;
+            const birthdate = document.getElementById('userBirthdate').value;
+            
+            if (!name || !username || !birthdate) {
+                showNotification('Пожалуйста, заполните все поля', 'error');
+                return;
+            }
+            
+            const user = {
+                id: generateId(),
+                name: name,
+                username: username,
+                birthdate: birthdate,
+                balance: 100,
+                inventory: {
+                    cases: [],
+                    emojis: []
+                },
+                stats: {
+                    casesOpened: 0,
+                    emojisCollected: 0
+                },
+                lastClaim: null,
+                registered: new Date().toISOString()
+            };
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            hideModal('confirmRegistration');
+            showMainInterface();
+            showNotification('Аккаунт успешно создан!', 'success');
+        }
+
+        // Показать основной интерфейс
+        function showMainInterface() {
+            document.getElementById('registrationPage').classList.remove('active');
+            document.getElementById('mainPage').style.display = 'block';
+            document.getElementById('navigation').style.display = 'flex';
+            
+            const user = initUser();
+            updateUserInterface(user);
+            showPage('profilePage');
+        }
+
+        // Обновление интерфейса пользователя
+        function updateUserInterface(user) {
+            if (!user) return;
+            
+            document.getElementById('displayName').textContent = user.name;
+            document.getElementById('displayUsername').textContent = '@' + user.username;
+            document.getElementById('balanceAmount').textContent = user.balance + ' iXC';
+            document.getElementById('casesOpened').textContent = user.stats.casesOpened;
+            
+            document.getElementById('settingsName').textContent = user.name;
+            document.getElementById('settingsUsername').textContent = user.username;
+            document.getElementById('userId').textContent = user.id;
+            
+            updateInventory(user);
+            updateCollectionStats(user);
+        }
+
+        // Показать страницу
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            document.getElementById(pageId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            const user = initUser();
+            if (pageId === 'shopPage' && user.inventory.cases.length > 0) {
+                document.getElementById('inventorySection').style.display = 'block';
+            }
+        }
+
+        // Забрать заработок
+        function claimEarnings() {
+            const user = initUser();
+            const lastClaim = user.lastClaim ? new Date(user.lastClaim) : null;
+            const now = new Date();
+            
+            if (lastClaim && (now - lastClaim) < 60 * 60 * 1000) {
+                showNotification('Подождите еще немного!', 'error');
+                return;
+            }
+            
+            user.balance += 20;
+            user.lastClaim = now.toISOString();
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            updateUserInterface(user);
+            updateTimer(user);
+            hideModal('confirmEarn');
+            
+            showNotification('Вы получили 20 iXC!', 'success');
+        }
+
+        // Покупка кейса
+        function buyCase(caseType) {
+            const user = initUser();
+            const price = gameData.casePrices[caseType];
+            
+            if (user.balance < price) {
+                showNotification('Недостаточно iXC!', 'error');
+                return;
+            }
+            
+            user.balance -= price;
+            user.inventory.cases.push({
+                type: caseType,
+                id: generateId(),
+                bought: new Date().toISOString()
+            });
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            updateUserInterface(user);
+            hideModal('confirmBuy' + caseType.charAt(0).toUpperCase() + caseType.slice(1));
+            
+            showNotification('Кейс куплен!', 'success');
+        }
+
+        // Обновление инвентаря
+        function updateInventory(user) {
+            const casesInventory = document.getElementById('casesInventory');
+            const emojisInventory = document.getElementById('emojisInventory');
+            
+            casesInventory.innerHTML = '';
+            emojisInventory.innerHTML = '';
+            
+            user.inventory.cases.forEach((caseItem, index) => {
+                const caseElement = document.createElement('div');
+                caseElement.className = 'emoji-item';
+                caseElement.textContent = caseItem.type === 'bronze' ? '📦' : 
+                                         caseItem.type === 'silver' ? '📦' : '📦';
+                caseElement.style.cursor = 'pointer';
+                caseElement.onclick = () => openCase(index);
+                casesInventory.appendChild(caseElement);
+            });
+            
+            user.inventory.emojis.forEach(emoji => {
+                const emojiElement = document.createElement('div');
+                emojiElement.className = `emoji-item rarity-${emoji.rarity}`;
+                emojiElement.textContent = emoji.emoji;
+                emojiElement.title = `Редкость: ${emoji.rarity}`;
+                emojisInventory.appendChild(emojiElement);
+            });
+        }
+
+        // Открытие кейса
+        function openCase(caseIndex) {
+            const user = initUser();
+            const caseItem = user.inventory.cases[caseIndex];
+            
+            user.inventory.cases.splice(caseIndex, 1);
+            const reward = getCaseReward(caseItem.type);
+            
+            if (reward.type === 'emoji') {
+                user.inventory.emojis.push({
+                    emoji: reward.emoji,
+                    rarity: reward.rarity,
+                    obtained: new Date().toISOString()
+                });
+                user.stats.emojisCollected++;
+            } else {
+                user.balance += reward.amount;
+            }
+            
+            user.stats.casesOpened++;
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            updateUserInterface(user);
+            updateCollectionStats(user);
+            
+            showCaseAnimation(reward);
+        }
+
+        // Получение награды из кейса
+        function getCaseReward(caseType) {
+            const rates = gameData.caseRates[caseType];
+            const random = Math.random() * 100;
+            
+            let accumulated = 0;
+            for (const [rarity, rate] of Object.entries(rates)) {
+                accumulated += rate;
+                if (random <= accumulated) {
+                    const emojis = gameData.emojis[rarity];
+                    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                    return { type: 'emoji', emoji: randomEmoji, rarity: rarity };
+                }
+            }
+            
+            const coinAmount = caseType === 'bronze' ? 5 : caseType === 'silver' ? 15 : 30;
+            return { type: 'coins', amount: coinAmount };
+        }
+
+        // Показать анимацию открытия кейса
+        function showCaseAnimation(reward) {
+            const animation = document.getElementById('caseAnimation');
+            const reel = document.getElementById('caseReel');
+            
+            reel.innerHTML = '';
+            
+            for (let i = 0; i < 20; i++) {
+                const item = document.createElement('div');
+                item.className = 'reel-item';
+                const allEmojis = Object.values(gameData.emojis).flat();
+                item.textContent = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+                reel.appendChild(item);
+            }
+            
+            const winItem = document.createElement('div');
+            winItem.className = `reel-item rarity-${reward.rarity || 'common'}`;
+            winItem.textContent = reward.type === 'emoji' ? reward.emoji : '💰';
+            reel.appendChild(winItem);
+            
+            animation.style.display = 'flex';
+            
+            setTimeout(() => {
+                animation.style.display = 'none';
+                const message = reward.type === 'emoji' ? 
+                    `Поздравляем! Вы получили: ${reward.emoji} (${reward.rarity})` :
+                    `Поздравляем! Вы получили: ${reward.amount} iXC`;
+                showNotification(message, 'success');
+            }, 3000);
+        }
+
+        // Смена темы
+        function changeTheme() {
+            const theme = document.getElementById('themeSelect').value;
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('ixTheme', theme);
+            hideModal('confirmTheme');
+            showNotification('Тема изменена!', 'success');
+        }
+
+        // Смена языка
+        function changeLanguage() {
+            const language = document.getElementById('languageSelect').value;
+            localStorage.setItem('ixLanguage', language);
+            hideModal('confirmLanguage');
+            updateLanguage();
+            showNotification('Язык изменен!', 'success');
+        }
+
+        // Обновление языка интерфейса
+        function updateLanguage() {
+            const language = localStorage.getItem('ixLanguage') || 'ru';
+            const translation = translations[language];
+            
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                const key = element.getAttribute('data-lang');
+                if (translation[key]) {
+                    element.textContent = translation[key];
+                }
+            });
+        }
+
+        // Копирование ID
+        function copyUserId() {
+            const user = initUser();
+            navigator.clipboard.writeText(user.id);
+            hideModal('confirmCopyId');
+            showNotification('ID скопирован!', 'success');
+        }
+
+        // Сброс аккаунта
+        function resetAccount() {
+            localStorage.removeItem('ixUser');
+            hideModal('confirmReset');
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        }
+
+        // Генерация ID
+        function generateId() {
+            return 'IX' + Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Загрузка настроек
+        function loadSettings() {
+            const theme = localStorage.getItem('ixTheme') || 'light';
+            const language = localStorage.getItem('ixLanguage') || 'ru';
+            
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('themeSelect').value = theme;
+            document.getElementById('languageSelect').value = language;
+            
+            updateLanguage();
+        }
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            loadSettings();
+            const user = initUser();
+            if (user) {
+                showMainInterface();
+            }
+        };
+    </script>
+</body>
+  </html>
