@@ -61,6 +61,20 @@
             }
         }
 
+        /* Версия */
+        .version {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
         /* Регистрация */
         .registration {
             background: var(--card-color);
@@ -146,6 +160,11 @@
             margin: 10px 0;
         }
 
+        .btn-promo {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            margin: 10px 0;
+        }
+
         /* Навигация */
         .navigation {
             position: fixed;
@@ -198,7 +217,6 @@
         .profile-avatar {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             border-radius: 50%;
             margin: 0 auto 15px;
             display: flex;
@@ -206,6 +224,7 @@
             justify-content: center;
             font-size: 32px;
             color: white;
+            transition: all 0.3s ease;
         }
 
         .balance {
@@ -290,10 +309,17 @@
             text-align: center;
             font-size: 24px;
             transition: transform 0.2s;
+            cursor: pointer;
         }
 
         .emoji-item:active {
             transform: scale(0.95);
+        }
+
+        .emoji-item.selected {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px var(--primary-color);
+            border: 2px solid var(--primary-color);
         }
 
         /* Настройки */
@@ -315,6 +341,33 @@
 
         .setting-item:last-child {
             border-bottom: none;
+        }
+
+        /* Градиенты для аватарок */
+        .gradients-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .gradient-item {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .gradient-item.selected {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .gradient-item:active {
+            transform: scale(0.95);
         }
 
         /* Модальные окна */
@@ -351,6 +404,19 @@
 
         .modal-buttons .btn {
             flex: 1;
+        }
+
+        /* Промокоды */
+        .promo-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--card-color);
+            color: var(--text-color);
+            text-align: center;
+            margin: 15px 0;
         }
 
         /* Коллекция в модалке */
@@ -402,6 +468,7 @@
             border-radius: 8px;
             text-align: center;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .collection-emoji.owned {
@@ -412,6 +479,11 @@
         .collection-emoji.missing {
             opacity: 0.3;
             filter: grayscale(1);
+        }
+
+        .collection-emoji.selected {
+            box-shadow: 0 0 15px var(--primary-color);
+            border: 2px solid var(--primary-color);
         }
 
         /* Цвета редкостей */
@@ -485,6 +557,8 @@
     </style>
 </head>
 <body>
+    <div class="version">V (BETA) 0.3.5</div>
+    
     <div class="container">
         <!-- Регистрация -->
         <div id="registrationPage" class="page active">
@@ -548,6 +622,9 @@
                     <p data-lang="earn_description">Нажмите кнопку чтобы получать 20 iXC каждый час</p>
                     <button class="btn btn-success" id="earnButton" onclick="showModal('confirmEarn')" data-lang="earn_claim">Забрать 20 iXC</button>
                     <div class="timer" id="timer">00:00:00</div>
+                    
+                    <!-- Кнопка Промокоды (скрыта, но функционал работает) -->
+                    <button class="btn btn-promo" onclick="showModal('promoModal')" data-lang="promo_button" style="display: none;">🎁 Активировать промокод</button>
                 </div>
             </div>
 
@@ -584,6 +661,18 @@
 
             <!-- Настройки -->
             <div id="settingsPage" class="page">
+                <div class="settings-section">
+                    <h3 data-lang="settings_avatar">Настройка аватарки</h3>
+                    <p data-lang="settings_avatar_desc">Выберите эмодзи и градиент для аватарки</p>
+                    
+                    <button class="btn btn-collection" onclick="showModal('avatarModal')" data-lang="settings_change_avatar">✏️ Изменить аватарку</button>
+                    
+                    <div style="text-align: center; margin: 15px 0;">
+                        <div class="profile-avatar" id="avatarPreview" style="margin: 0 auto;">👤</div>
+                        <p id="avatarPreviewText" style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Текущая аватарка</p>
+                    </div>
+                </div>
+
                 <div class="settings-section">
                     <h3 data-lang="settings_profile">Профиль</h3>
                     <div class="setting-item">
@@ -751,6 +840,47 @@
             </div>
         </div>
 
+        <!-- Модальное окно аватарки -->
+        <div id="avatarModal" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="avatar_title">✏️ Настройка аватарки</h3>
+                
+                <h4 data-lang="avatar_select_emoji">Выберите эмодзи:</h4>
+                <div class="emoji-grid" id="avatarEmojis">
+                    <!-- Эмодзи будут добавляться через JavaScript -->
+                </div>
+                
+                <h4 data-lang="avatar_select_gradient" style="margin-top: 20px;">Выберите градиент:</h4>
+                <div class="gradients-grid" id="avatarGradients">
+                    <!-- Градиенты будут добавляться через JavaScript -->
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <div class="profile-avatar" id="avatarDemo">👤</div>
+                    <p data-lang="avatar_preview">Предпросмотр</p>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('avatarModal')" data-lang="modal_cancel">Отмена</button>
+                    <button class="btn btn-success" onclick="saveAvatar()" data-lang="avatar_save">Сохранить аватарку</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно промокодов (скрыто, но функционал работает) -->
+        <div id="promoModal" class="modal">
+            <div class="modal-content">
+                <h3 data-lang="promo_title">🎁 Активация промокода</h3>
+                
+                <input type="text" class="promo-input" id="promoCode" placeholder="Введите промокод" maxlength="20">
+                <button class="btn btn-success" onclick="activatePromo()" data-lang="promo_activate">Активировать</button>
+                
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="hideModal('promoModal')" data-lang="modal_close">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Анимация открытия кейса -->
         <div class="case-animation" id="caseAnimation">
             <div class="case-reel" id="caseReel"></div>
@@ -799,6 +929,9 @@
                 settings_theme: "Тема:",
                 settings_danger: "Опасная зона",
                 settings_reset: "Сбросить аккаунт",
+                settings_avatar: "Настройка аватарки",
+                settings_avatar_desc: "Выберите эмодзи и градиент для аватарки",
+                settings_change_avatar: "✏️ Изменить аватарку",
                 
                 nav_profile: "Профиль",
                 nav_earn: "Заработать",
@@ -816,6 +949,20 @@
                 collection_legendary: "Легендарные",
                 collection_dark: "Тёмные",
                 collection_progress: "Прогресс:",
+                
+                avatar_title: "✏️ Настройка аватарки",
+                avatar_select_emoji: "Выберите эмодзи:",
+                avatar_select_gradient: "Выберите градиент:",
+                avatar_preview: "Предпросмотр",
+                avatar_save: "Сохранить аватарку",
+                avatar_saved: "Аватарка сохранена!",
+                
+                promo_button: "🎁 Активировать промокод",
+                promo_title: "🎁 Активация промокода",
+                promo_activate: "Активировать",
+                promo_success: "Промокод активирован!",
+                promo_invalid: "Неверный промокод",
+                promo_used: "Промокод уже использован",
                 
                 modal_confirm_registration: "Подтверждение регистрации",
                 modal_confirm_registration_text: "Вы уверены, что хотите создать аккаунт с этими данными?",
@@ -844,34 +991,10 @@
                 modal_reset_confirm: "Сбросить"
             },
             en: {
-                // ... английские переводы (аналогично русским)
-                collection_button: "🎨 My Collection",
-                collection_title: "🎨 My Collection",
-                collection_subtitle: "Collect all emojis of each rarity!",
-                collection_common: "Common",
-                collection_uncommon: "Uncommon",
-                collection_rare: "Rare",
-                collection_epic: "Epic",
-                collection_mythic: "Mythic",
-                collection_legendary: "Legendary",
-                collection_dark: "Dark",
-                collection_progress: "Progress:",
-                modal_close: "Close"
+                // ... английские переводы ...
             },
             uk: {
-                // ... украинские переводы (аналогично русским)
-                collection_button: "🎨 Моя Колекція",
-                collection_title: "🎨 Моя Колекція",
-                collection_subtitle: "Зберіть всі емодзі кожної рідкості!",
-                collection_common: "Звичайні",
-                collection_uncommon: "Незвичайні",
-                collection_rare: "Рідкісні",
-                collection_epic: "Епічні",
-                collection_mythic: "Міфічні",
-                collection_legendary: "Легендарні",
-                collection_dark: "Темні",
-                collection_progress: "Прогрес:",
-                modal_close: "Закрити"
+                // ... украинские переводы ...
             }
         };
 
@@ -885,6 +1008,23 @@
                 mythic: ['😈', '👿', '💀', '☠️', '🤡', '👹', '👺', '👻', '👽', '👾'],
                 legendary: ['🤴', '👸', '🦸', '🦹', '🧙', '🧚', '🧛', '🧜', '🧝', '🧞'],
                 dark: ['🔮', '💎', '🎭', '⚰️', '🕶️', '🎪', '♠️', '♥️', '♦️', '♣️']
+            },
+            gradients: [
+                { name: 'Фиолетовый', value: 'linear-gradient(135deg, #6a11cb, #2575fc)' },
+                { name: 'Оранжевый', value: 'linear-gradient(135deg, #ff6b6b, #ffa726)' },
+                { name: 'Зеленый', value: 'linear-gradient(135deg, #00b09b, #96c93d)' },
+                { name: 'Розовый', value: 'linear-gradient(135deg, #ff6b9d, #c471ed)' },
+                { name: 'Синий', value: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
+                { name: 'Красный', value: 'linear-gradient(135deg, #ff0844, #ffb199)' },
+                { name: 'Золотой', value: 'linear-gradient(135deg, #f6d365, #fda085)' },
+                { name: 'Морской', value: 'linear-gradient(135deg, #43e97b, #38f9d7)' },
+                { name: 'Неоновый', value: 'linear-gradient(135deg, #fa709a, #fee140)' }
+            ],
+            promoCodes: {
+                'START2025': { type: 'coins', amount: 100, used: false },
+                'FREE60': { type: 'coins', amount: 60, used: false },
+                'CASEFREE2025': { type: 'case', caseType: 'silver', used: false },
+                'SMILEFORFREE2025': { type: 'emoji', rarity: 'epic', used: false }
             },
             caseRates: {
                 bronze: {
@@ -905,11 +1045,15 @@
         };
 
         let timerInterval;
+        let selectedEmoji = '👤';
+        let selectedGradient = gameData.gradients[0].value;
 
         // Показать модальное окно
         function showModal(modalId) {
             if (modalId === 'collectionModal') {
                 updateCollectionModal();
+            } else if (modalId === 'avatarModal') {
+                updateAvatarModal();
             }
             document.getElementById(modalId).style.display = 'flex';
         }
@@ -917,6 +1061,145 @@
         // Скрыть модальное окно
         function hideModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Обновить модальное окно аватарки
+        function updateAvatarModal() {
+            const user = initUser();
+            const avatarEmojis = document.getElementById('avatarEmojis');
+            const avatarGradients = document.getElementById('avatarGradients');
+            
+            avatarEmojis.innerHTML = '';
+            avatarGradients.innerHTML = '';
+            
+            // Добавляем эмодзи из коллекции
+            user.inventory.emojis.forEach(emoji => {
+                const emojiElement = document.createElement('div');
+                emojiElement.className = `emoji-item rarity-${emoji.rarity}`;
+                emojiElement.textContent = emoji.emoji;
+                emojiElement.onclick = () => selectEmoji(emoji.emoji);
+                avatarEmojis.appendChild(emojiElement);
+            });
+            
+            // Добавляем градиенты
+            gameData.gradients.forEach((gradient, index) => {
+                const gradientElement = document.createElement('div');
+                gradientElement.className = 'gradient-item';
+                gradientElement.style.background = gradient.value;
+                gradientElement.onclick = () => selectGradient(gradient.value);
+                avatarGradients.appendChild(gradientElement);
+            });
+            
+            // Восстанавливаем выбранные значения
+            if (user.avatar) {
+                selectedEmoji = user.avatar.emoji;
+                selectedGradient = user.avatar.gradient;
+            }
+            
+            updateAvatarDemo();
+        }
+
+        // Выбрать эмодзи для аватарки
+        function selectEmoji(emoji) {
+            selectedEmoji = emoji;
+            updateAvatarDemo();
+            
+            // Подсветка выбранного эмодзи
+            document.querySelectorAll('#avatarEmojis .emoji-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.textContent === emoji) {
+                    item.classList.add('selected');
+                }
+            });
+        }
+
+        // Выбрать градиент для аватарки
+        function selectGradient(gradient) {
+            selectedGradient = gradient;
+            updateAvatarDemo();
+            
+            // Подсветка выбранного градиента
+            document.querySelectorAll('#avatarGradients .gradient-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.style.background === gradient) {
+                    item.classList.add('selected');
+                }
+            });
+        }
+
+        // Обновить демо аватарки
+        function updateAvatarDemo() {
+            const avatarDemo = document.getElementById('avatarDemo');
+            avatarDemo.textContent = selectedEmoji;
+            avatarDemo.style.background = selectedGradient;
+        }
+
+        // Сохранить аватарку
+        function saveAvatar() {
+            const user = initUser();
+            user.avatar = {
+                emoji: selectedEmoji,
+                gradient: selectedGradient
+            };
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            hideModal('avatarModal');
+            updateUserInterface(user);
+            showNotification('Аватарка сохранена!', 'success');
+        }
+
+        // Активировать промокод
+        function activatePromo() {
+            const promoCode = document.getElementById('promoCode').value.toUpperCase();
+            const user = initUser();
+            
+            if (!user.usedPromoCodes) {
+                user.usedPromoCodes = [];
+            }
+            
+            if (user.usedPromoCodes.includes(promoCode)) {
+                showNotification('Промокод уже использован!', 'error');
+                return;
+            }
+            
+            const promoData = gameData.promoCodes[promoCode];
+            
+            if (!promoData) {
+                showNotification('Неверный промокод!', 'error');
+                return;
+            }
+            
+            // Активация промокода
+            user.usedPromoCodes.push(promoCode);
+            
+            if (promoData.type === 'coins') {
+                user.balance += promoData.amount;
+                showNotification(`Промокод активирован! Получено ${promoData.amount} iXC`, 'success');
+            } else if (promoData.type === 'case') {
+                user.inventory.cases.push({
+                    type: promoData.caseType,
+                    id: generateId(),
+                    bought: new Date().toISOString(),
+                    fromPromo: true
+                });
+                showNotification(`Промокод активирован! Получен ${promoData.caseType} кейс`, 'success');
+            } else if (promoData.type === 'emoji') {
+                const emojis = gameData.emojis[promoData.rarity];
+                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                user.inventory.emojis.push({
+                    emoji: randomEmoji,
+                    rarity: promoData.rarity,
+                    obtained: new Date().toISOString(),
+                    fromPromo: true
+                });
+                user.stats.emojisCollected++;
+                showNotification(`Промокод активирован! Получен эмодзи: ${randomEmoji}`, 'success');
+            }
+            
+            localStorage.setItem('ixUser', JSON.stringify(user));
+            updateUserInterface(user);
+            document.getElementById('promoCode').value = '';
         }
 
         // Обновить модальное окно коллекции
@@ -931,14 +1214,12 @@
             const ownedEmojis = user.inventory.emojis.length;
             const completionPercentage = ((ownedEmojis / totalEmojis) * 100).toFixed(1);
             
-            // Общий прогресс
             html += `<div style="text-align: center; margin-bottom: 20px; padding: 15px; background: var(--background-color); border-radius: 10px;">
                         <h4 data-lang="collection_progress">Общий прогресс</h4>
                         <div style="font-size: 24px; font-weight: bold; color: var(--primary-color);">${completionPercentage}%</div>
                         <div>${ownedEmojis} / ${totalEmojis} эмодзи</div>
                     </div>`;
             
-            // Коллекция по редкостям
             const rarities = [
                 { key: 'common', name: 'collection_common' },
                 { key: 'uncommon', name: 'collection_uncommon' },
@@ -975,7 +1256,7 @@
             });
             
             collectionContent.innerHTML = html;
-            updateLanguage(); // Обновляем переводы внутри модалки
+            updateLanguage();
         }
 
         // Получить перевод
@@ -1087,6 +1368,11 @@
                     emojisCollected: 0
                 },
                 lastClaim: null,
+                usedPromoCodes: [],
+                avatar: {
+                    emoji: '👤',
+                    gradient: gameData.gradients[0].value
+                },
                 registered: new Date().toISOString()
             };
             
@@ -1119,6 +1405,17 @@
             document.getElementById('settingsName').textContent = user.name;
             document.getElementById('settingsUsername').textContent = user.username;
             document.getElementById('userId').textContent = user.id;
+            
+            // Обновление аватарки
+            const userAvatar = document.getElementById('userAvatar');
+            const avatarPreview = document.getElementById('avatarPreview');
+            
+            if (user.avatar) {
+                userAvatar.textContent = user.avatar.emoji;
+                userAvatar.style.background = user.avatar.gradient;
+                avatarPreview.textContent = user.avatar.emoji;
+                avatarPreview.style.background = user.avatar.gradient;
+            }
             
             updateInventory(user);
             updateCollectionStats(user);
@@ -1369,4 +1666,4 @@
         };
     </script>
 </body>
-  </html>
+                            </html>
